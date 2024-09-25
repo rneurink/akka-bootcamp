@@ -13,22 +13,11 @@ namespace WinTailNew
         public const string StartCommand = "start";
         public const string ExitCommand = "exit";
 
-        private IActorRef _validationActor;
-
-        public ConsoleReaderActor(IActorRef validationActor)
-        {
-            _validationActor = validationActor;
-        }
-
         protected override void OnReceive(object message)
         {
             if (message.Equals(StartCommand))
             {
                 DoPrintInstructions();
-            }
-            else if (message is Messages.InputError)
-            {
-                _validationActor.Tell(message as Messages.InputError);
             }
 
             GetAndValidateInput();
@@ -38,9 +27,7 @@ namespace WinTailNew
 
         private void DoPrintInstructions()
         {
-            Console.WriteLine("Write whatever you want into the console!");
-            Console.WriteLine("Some entries will pass validation, and some won't...\n\n");
-            Console.WriteLine("Type 'exit' to quit this application at any time.\n");
+            Console.WriteLine("Please provide the URI of a log file on disk.\n");
         }
 
         /// <summary>
@@ -60,8 +47,7 @@ namespace WinTailNew
             }
 
             // otherwise, just hand message off to validation actor
-            // (by telling its actor ref)
-            _validationActor.Tell(message);
+            Context.ActorSelection("akka://MyActorSystem/user/fileValidatorActor").Tell(message);
         }
 
         #endregion

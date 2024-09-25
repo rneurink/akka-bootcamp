@@ -7,19 +7,22 @@ namespace WinTailNew
 {
     internal class Program
     {
-        private static ActorSystem MyActorSystem;
+        private static ActorSystem? MyActorSystem;
 
         static void Main(string[] args)
         {
             MyActorSystem = ActorSystem.Create(nameof(MyActorSystem));
 
+            Props tailCoordinatorProps = Props.Create<TailCoordinatorActor>();
+            IActorRef tailCoordinatorActor = MyActorSystem.ActorOf(tailCoordinatorProps, nameof(tailCoordinatorActor));
+
             Props consoleWriterProps = Props.Create<ConsoleWriterActor>();
             IActorRef consoleWriterActor = MyActorSystem.ActorOf(consoleWriterProps, nameof(consoleWriterActor));
             
-            Props validationActorProps = Props.Create<ValidationActor>(consoleWriterActor);
-            IActorRef validationActor = MyActorSystem.ActorOf(validationActorProps, nameof(validationActor));
+            Props fileValidatorActorProps = Props.Create<FileValidatorActor>(consoleWriterActor);
+            IActorRef fileValidatorActor = MyActorSystem.ActorOf(fileValidatorActorProps, nameof(fileValidatorActor));
 
-            Props consoleReaderProps = Props.Create<ConsoleReaderActor>(validationActor);
+            Props consoleReaderProps = Props.Create<ConsoleReaderActor>();
             IActorRef consoleReaderActor = MyActorSystem.ActorOf(consoleReaderProps, nameof(consoleReaderActor));
 
             // tell console reader to begin
